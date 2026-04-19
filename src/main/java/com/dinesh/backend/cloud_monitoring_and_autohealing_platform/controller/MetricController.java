@@ -1,20 +1,29 @@
 package com.dinesh.backend.cloud_monitoring_and_autohealing_platform.controller;
 
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.model.Metric;
+import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service.CpuUsageService;
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service.MetricService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/metrics")
 public class MetricController {
 
     private final MetricService metricService;
+    private final CpuUsageService cpuUsageService;
 
-    public MetricController(MetricService metricService) {
+    @GetMapping("/cpuusage")
+    public String getCpuUsage(@RequestParam int usage) {
+        return cpuUsageService.getCpuUsage(usage);
+    }
+
+    public MetricController(MetricService metricService, CpuUsageService cpuUsageService) {
         this.metricService = metricService;
+        this.cpuUsageService = cpuUsageService;
     }
 
     @GetMapping
@@ -22,14 +31,18 @@ public class MetricController {
         return ResponseEntity.ok(metricService.findAll());
     }
 
+    @PostMapping
+    public ResponseEntity<?> createMetric(@RequestBody Metric metric) {
+        Metric saved = metricService.save(metric);
+        if (saved.getCpu() > 50) {
+            return ResponseEntity.ok(Map.of("metric", saved, "warning", "⚠️ Warning: CPU usage is high!"));
+        }
+        return ResponseEntity.ok(saved);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<Metric> getMetricById(@PathVariable Long id) {
         return ResponseEntity.of(metricService.findById(id));
     }
 
-    @PostMapping
-    public ResponseEntity<Metric> createMetric(@RequestBody Metric metric) {
-        Metric saved = metricService.save(metric);
-        return ResponseEntity.ok(saved);
-    }
 }
