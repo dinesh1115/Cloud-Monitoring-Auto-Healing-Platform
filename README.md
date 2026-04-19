@@ -1,4 +1,4 @@
-# Cloud Monitoring and Auto-Healing Platform
+# Cloud Monitoring and Auto-Healing Platform -- IN progress
 
 A simple Spring Boot application that tracks runtime metrics for cloud systems and exposes REST endpoints for metric ingestion and retrieval.
 
@@ -18,10 +18,19 @@ Example request body for POST:
 
 ```json
 {
-  "cpu": 65,
+  "cpu": 400,
   "temperature": 75
 }
 ```
+{
+    "warning": "⚠️ Warning: CPU usage is high!",
+    "metric": {
+        "id": 4,
+        "cpu": 400,
+        "temperature": 70,
+        "timestamp": "2026-04-19T09:31:35.312679500Z"
+    }
+}
 
 ## Build and Run
 
