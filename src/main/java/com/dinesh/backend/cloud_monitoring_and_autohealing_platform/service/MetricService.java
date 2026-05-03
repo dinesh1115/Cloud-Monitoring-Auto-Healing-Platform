@@ -4,6 +4,7 @@ import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.model.Metric
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.repository.MetricRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,9 +12,15 @@ import java.util.Optional;
 public class MetricService {
 
     private final MetricRepository metricRepository;
+    private final AnomalyDetectionService anomalyDetectionService;
+    private final AlertService alertService;
 
-    public MetricService(MetricRepository metricRepository) {
+    public MetricService(MetricRepository metricRepository,
+                         AnomalyDetectionService anomalyDetectionService,
+                         AlertService alertService) {
         this.metricRepository = metricRepository;
+        this.anomalyDetectionService = anomalyDetectionService;
+        this.alertService = alertService;
     }
 
     public List<Metric> findAll() {
@@ -25,7 +32,19 @@ public class MetricService {
     }
 
     public Metric save(Metric metric) {
-        return metricRepository.save(metric);
+        List<Metric> priorMetrics = metricRepository.findAll().stream()
+                .sorted(Comparator.comparing(Metric::getTimestamp))
+                .toList();
+
+        Metric savedMetric = metricRepository.save(metric);
+        anomalyDetectionService.detectAnomaly(savedMetric, priorMetrics)
+                .ifPresent(alertService::recordAlert);
+
+        return savedMetric;
+    }
+
+    public int count() {
+        return metricRepository.findAll().size();
     }
 }
 

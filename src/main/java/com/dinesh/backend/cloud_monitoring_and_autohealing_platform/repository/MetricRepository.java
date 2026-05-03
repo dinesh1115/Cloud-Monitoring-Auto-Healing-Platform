@@ -41,5 +41,10 @@ public class MetricRepository {
         metrics.put(metric.getId(), metric);
         return metric;
     }
+
+    public void clear() {
+        metrics.clear();
+        idSequence.set(0);
+    }
 }
 
