@@ -27,8 +27,16 @@ public class MetricController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Metric>> getAllMetrics() {
-        return ResponseEntity.ok(metricService.findAll());
+    public ResponseEntity<List<Metric>> getAllMetrics(
+            @RequestParam(required = false) Integer cpuMin,
+            @RequestParam(required = false) Integer cpuMax,
+            @RequestParam(required = false) Integer tempMin,
+            @RequestParam(required = false) Integer tempMax,
+            @RequestParam(required = false, defaultValue = "10") Integer limit,
+            @RequestParam(required = false, defaultValue = "0") Integer offset,
+            @RequestParam(required = false, defaultValue = "timestamp") String sort,
+            @RequestParam(required = false, defaultValue = "desc") String order) {
+        return ResponseEntity.ok(metricService.findAllFiltered(cpuMin, cpuMax, tempMin, tempMax, limit, offset, sort, order));
     }
 
     @PostMapping

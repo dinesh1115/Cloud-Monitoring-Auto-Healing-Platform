@@ -161,7 +161,19 @@ http://localhost:8080
 
 #### Metrics Management
 - **GET** `/metrics`
-- **Description**: Retrieve all stored metrics
+- **Description**: Retrieve all stored metrics with optional filtering and pagination
+- **Query Parameters**:
+  - `cpuMin` (optional): Minimum CPU usage filter
+  - `cpuMax` (optional): Maximum CPU usage filter
+  - `tempMin` (optional): Minimum temperature filter
+  - `tempMax` (optional): Maximum temperature filter
+  - `limit` (optional, default: 10): Maximum number of results
+  - `offset` (optional, default: 0): Number of results to skip
+  - `sort` (optional, default: "timestamp"): Sort field (cpu, temperature, timestamp)
+  - `order` (optional, default: "desc"): Sort order (asc, desc)
+- **Examples**:
+  - `GET /metrics?cpuMin=50&limit=5` - Get 5 metrics with CPU >= 50
+  - `GET /metrics?sort=cpu&order=asc` - Get all metrics sorted by CPU ascending
 - **Response**: Array of metric objects
 
 - **GET** `/metrics/{id}`

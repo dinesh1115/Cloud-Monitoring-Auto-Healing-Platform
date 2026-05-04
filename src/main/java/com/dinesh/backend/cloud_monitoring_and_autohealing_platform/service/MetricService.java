@@ -46,5 +46,35 @@ public class MetricService {
     public int count() {
         return metricRepository.findAll().size();
     }
+
+    public List<Metric> findAllFiltered(Integer cpuMin, Integer cpuMax, Integer tempMin, Integer tempMax,
+                                       Integer limit, Integer offset, String sort, String order) {
+        return metricRepository.findAll().stream()
+                .filter(metric -> cpuMin == null || metric.getCpu() >= cpuMin)
+                .filter(metric -> cpuMax == null || metric.getCpu() <= cpuMax)
+                .filter(metric -> tempMin == null || metric.getTemperature() >= tempMin)
+                .filter(metric -> tempMax == null || metric.getTemperature() <= tempMax)
+                .sorted(getComparator(sort, order))
+                .skip(offset)
+                .limit(limit)
+                .toList();
+    }
+
+    private Comparator<Metric> getComparator(String sort, String order) {
+        Comparator<Metric> comparator;
+        switch (sort.toLowerCase()) {
+            case "cpu":
+                comparator = Comparator.comparing(Metric::getCpu);
+                break;
+            case "temperature":
+                comparator = Comparator.comparing(Metric::getTemperature);
+                break;
+            case "timestamp":
+            default:
+                comparator = Comparator.comparing(Metric::getTimestamp);
+                break;
+        }
+        return order.equalsIgnoreCase("asc") ? comparator : comparator.reversed();
+    }
 }
 
