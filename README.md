@@ -299,9 +299,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## Contact
 
 **Project Maintainer**: Dinesh  
-**Email**: your.email@example.com  
-**GitHub**: [your-username](https://github.com/your-username)  
-**LinkedIn**: [Your LinkedIn](https://linkedin.com/in/your-profile)
+**Email**: dineshashok33@gmail.com 
+**GitHub**: https://github.com/dinesh1115 
+**LinkedIn**: https://www.linkedin.com/in/dinesh1115w/
 
 ---
 
