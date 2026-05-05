@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -70,5 +71,33 @@ class CloudMonitoringAndAutoHealingPlatformApplicationTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].severity").value("CRITICAL"))
                 .andExpect(jsonPath("$[0].message").exists());
+    }
+
+    @Test
+    void latestMetricEndpointReturnsMostRecentMetric() throws Exception {
+        mockMvc.perform(post("/metrics")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"cpu\": 20, \"temperature\": 45}"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/metrics/latest"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.cpu").value(20))
+                .andExpect(jsonPath("$.temperature").value(45));
+    }
+
+    @Test
+    void deleteAlertsEndpointClearsAlertHistory() throws Exception {
+        mockMvc.perform(post("/metrics")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"cpu\": 85, \"temperature\": 70}"))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(delete("/alerts"))
+                .andExpect(status().isNoContent());
+
+        mockMvc.perform(get("/alerts"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0]").doesNotExist());
     }
 }

@@ -4,6 +4,7 @@ import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.model.Alert;
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service.AlertService;
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service.MetricService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,5 +34,11 @@ public class SystemStatusController {
     @GetMapping("/alerts")
     public ResponseEntity<List<Alert>> getAlerts() {
         return ResponseEntity.ok(alertService.getAlerts());
+    }
+
+    @DeleteMapping("/alerts")
+    public ResponseEntity<Void> clearAlerts() {
+        alertService.clearAlerts();
+        return ResponseEntity.noContent().build();
     }
 }

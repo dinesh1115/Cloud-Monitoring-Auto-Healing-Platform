@@ -21,6 +21,11 @@ public class MetricController {
         return cpuUsageService.getCpuUsage(usage);
     }
 
+    @GetMapping("/latest")
+    public ResponseEntity<Metric> getLatestMetric() {
+        return ResponseEntity.of(metricService.findLatest());
+    }
+
     public MetricController(MetricService metricService, CpuUsageService cpuUsageService) {
         this.metricService = metricService;
         this.cpuUsageService = cpuUsageService;

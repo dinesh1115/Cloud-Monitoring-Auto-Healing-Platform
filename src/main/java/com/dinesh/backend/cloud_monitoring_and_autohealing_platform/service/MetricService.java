@@ -60,6 +60,11 @@ public class MetricService {
                 .toList();
     }
 
+    public Optional<Metric> findLatest() {
+        return metricRepository.findAll().stream()
+                .max(Comparator.comparing(Metric::getTimestamp));
+    }
+
     private Comparator<Metric> getComparator(String sort, String order) {
         Comparator<Metric> comparator;
         switch (sort.toLowerCase()) {
