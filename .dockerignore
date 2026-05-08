@@ -1,0 +1,46 @@
+# Git
+.git
+.gitignore
+.gitattributes
+.github
+
+# Build artifacts
+build
+bin
+.gradle
+target
+*.jar
+*.war
+
+# IDE
+.vscode
+.idea
+*.iml
+*.iws
+*.ipr
+.DS_Store
+
+# Tests
+src/test
+build/reports
+build/test-results
+
+# Documentation
+*.md
+docs
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Logs
+logs
+*.log
