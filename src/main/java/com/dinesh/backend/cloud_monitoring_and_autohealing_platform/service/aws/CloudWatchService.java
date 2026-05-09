@@ -18,6 +18,7 @@ import java.util.List;
 public class CloudWatchService {
 
     private final CloudWatchClient cloudWatchClient;
+    private final boolean awsEnabled;
 
     @Value("${aws.cloudwatch.namespace:CloudMonitoringPlatform}")
     private String namespace;
@@ -25,14 +26,28 @@ public class CloudWatchService {
     @Value("${aws.region:us-east-1}")
     private String region;
 
-    public CloudWatchService() {
-        this.cloudWatchClient = CloudWatchClient.create();
+    public CloudWatchService(@Value("${app.aws.enabled:false}") boolean awsEnabled) {
+        this.awsEnabled = awsEnabled;
+        if (awsEnabled) {
+            try {
+                this.cloudWatchClient = CloudWatchClient.create();
+            } catch (Exception e) {
+                System.err.println("Failed to initialize AWS CloudWatch client: " + e.getMessage());
+                throw e; // Re-throw to prevent bean creation
+            }
+        } else {
+            this.cloudWatchClient = null;
+        }
     }
 
     /**
      * Publish metric data to CloudWatch
      */
     public void publishMetric(Metric metric) {
+        if (!awsEnabled || cloudWatchClient == null) {
+            return; // Silently skip if AWS is not enabled
+        }
+
         try {
             List<MetricDatum> metricData = new ArrayList<>();
 
@@ -79,6 +94,10 @@ public class CloudWatchService {
      * Create CloudWatch alarm for anomaly detection
      */
     public void createAnomalyAlarm(Anomaly anomaly) {
+        if (!awsEnabled || cloudWatchClient == null) {
+            return; // Silently skip if AWS is not enabled
+        }
+
         try {
             String alarmName = "Anomaly-" + anomaly.getAnomalyId();
             String metricName = anomaly.getMetricType() == com.dinesh.backend.cloud_monitoring_and_autohealing_platform.model.AnomalyRule.MetricType.CPU
