@@ -1,9 +1,11 @@
 package com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service;
 
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.model.Anomaly;
+import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.model.AnomalyRule;
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.model.Metric;
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.repository.MetricRepository;
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service.aws.CloudWatchService;
+import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service.ml.PythonMLService;
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service.recovery.RecoveryOrchestratorService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -20,20 +22,26 @@ public class MetricService {
     private final AlertService alertService;
     private final CloudWatchService cloudWatchService;
     private final RecoveryOrchestratorService recoveryOrchestratorService;
+    private final PythonMLService pythonMLService;
 
     @Value("${app.cloudwatch.enabled:false}")
     private boolean cloudWatchEnabled;
+
+    @Value("${app.python.enabled:false}")
+    private boolean pythonMLEnabled;
 
     public MetricService(MetricRepository metricRepository,
                          AnomalyDetectionService anomalyDetectionService,
                          AlertService alertService,
                          CloudWatchService cloudWatchService,
-                         RecoveryOrchestratorService recoveryOrchestratorService) {
+                         RecoveryOrchestratorService recoveryOrchestratorService,
+                         PythonMLService pythonMLService) {
         this.metricRepository = metricRepository;
         this.anomalyDetectionService = anomalyDetectionService;
         this.alertService = alertService;
         this.cloudWatchService = cloudWatchService;
         this.recoveryOrchestratorService = recoveryOrchestratorService;
+        this.pythonMLService = pythonMLService;
     }
 
     public List<Metric> findAll() {
@@ -82,6 +90,34 @@ public class MetricService {
                 recoveryOrchestratorService.executeRecoveryWorkflow(anomaly);
             } catch (Exception e) {
                 System.err.println("Failed to execute recovery workflow: " + e.getMessage());
+            }
+        }
+
+        // ML-based anomaly detection
+        if (pythonMLEnabled) {
+            try {
+                PythonMLService.MLAnomalyResult mlResult = pythonMLService.detectAnomaly(savedMetric);
+                if (mlResult.isAnomaly()) {
+                    // Create ML-based anomaly
+                    Anomaly mlAnomaly = new Anomaly();
+                    mlAnomaly.setAnomalyId("ml-" + System.currentTimeMillis());
+                    mlAnomaly.setMetricId(savedMetric.getId());
+                    mlAnomaly.setRuleId("ml_detection");
+                    mlAnomaly.setMetricType(AnomalyRule.MetricType.CPU); // Primary metric
+                    mlAnomaly.setMetricValue(savedMetric.getCpu());
+                    mlAnomaly.setThreshold(0.0); // ML doesn't use thresholds
+                    mlAnomaly.setSeverity("HIGH"); // ML-detected anomalies are significant
+                    mlAnomaly.setDescription(String.format("ML-detected anomaly (confidence: %.2f, score: %.2f)",
+                        mlResult.getConfidence(), mlResult.getScore()));
+                    mlAnomaly.setStatus("DETECTED");
+
+                    anomalies.add(mlAnomaly);
+
+                    // Trigger recovery for ML-detected anomalies
+                    recoveryOrchestratorService.executeRecoveryWorkflow(mlAnomaly);
+                }
+            } catch (Exception e) {
+                System.err.println("Error in ML anomaly detection: " + e.getMessage());
             }
         }
 
