@@ -1,7 +1,11 @@
 package com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service;
 
+import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.model.Anomaly;
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.model.Metric;
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.repository.MetricRepository;
+import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service.aws.CloudWatchService;
+import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service.recovery.RecoveryOrchestratorService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -14,13 +18,22 @@ public class MetricService {
     private final MetricRepository metricRepository;
     private final AnomalyDetectionService anomalyDetectionService;
     private final AlertService alertService;
+    private final CloudWatchService cloudWatchService;
+    private final RecoveryOrchestratorService recoveryOrchestratorService;
+
+    @Value("${app.cloudwatch.enabled:false}")
+    private boolean cloudWatchEnabled;
 
     public MetricService(MetricRepository metricRepository,
                          AnomalyDetectionService anomalyDetectionService,
-                         AlertService alertService) {
+                         AlertService alertService,
+                         CloudWatchService cloudWatchService,
+                         RecoveryOrchestratorService recoveryOrchestratorService) {
         this.metricRepository = metricRepository;
         this.anomalyDetectionService = anomalyDetectionService;
         this.alertService = alertService;
+        this.cloudWatchService = cloudWatchService;
+        this.recoveryOrchestratorService = recoveryOrchestratorService;
     }
 
     public List<Metric> findAll() {
@@ -37,8 +50,40 @@ public class MetricService {
                 .toList();
 
         Metric savedMetric = metricRepository.save(metric);
+
+        // Publish to CloudWatch if enabled
+        if (cloudWatchEnabled) {
+            try {
+                cloudWatchService.publishMetric(savedMetric);
+            } catch (Exception e) {
+                // Log error but don't fail the save operation
+                System.err.println("Failed to publish metric to CloudWatch: " + e.getMessage());
+            }
+        }
+
+        // Detect anomalies
         anomalyDetectionService.detectAnomaly(savedMetric, priorMetrics)
                 .ifPresent(alertService::recordAlert);
+
+        // Analyze for rule-based anomalies and trigger recovery if needed
+        List<Anomaly> anomalies = anomalyDetectionService.analyzeMetric(savedMetric);
+        for (Anomaly anomaly : anomalies) {
+            // Create CloudWatch alarm for critical anomalies
+            if (cloudWatchEnabled && anomaly.getSeverity().equals("CRITICAL")) {
+                try {
+                    cloudWatchService.createAnomalyAlarm(anomaly);
+                } catch (Exception e) {
+                    System.err.println("Failed to create CloudWatch alarm: " + e.getMessage());
+                }
+            }
+
+            // Trigger auto-healing recovery workflow
+            try {
+                recoveryOrchestratorService.executeRecoveryWorkflow(anomaly);
+            } catch (Exception e) {
+                System.err.println("Failed to execute recovery workflow: " + e.getMessage());
+            }
+        }
 
         return savedMetric;
     }
