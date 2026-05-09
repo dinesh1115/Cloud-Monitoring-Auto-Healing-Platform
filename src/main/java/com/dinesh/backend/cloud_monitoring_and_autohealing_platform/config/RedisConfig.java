@@ -2,16 +2,19 @@ package com.dinesh.backend.cloud_monitoring_and_autohealing_platform.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 /**
- * Redis Configuration for the Cloud Monitoring & Auto-Healing Platform
+ * Conditional Redis Configuration for the Cloud Monitoring & Auto-Healing Platform
+ * Only enabled when app.redis.enabled=true
  * Enables event-driven architecture with pub/sub messaging
  */
 @Configuration
+@Conditional(RedisEnabledCondition.class)
 public class RedisConfig {
 
     /**

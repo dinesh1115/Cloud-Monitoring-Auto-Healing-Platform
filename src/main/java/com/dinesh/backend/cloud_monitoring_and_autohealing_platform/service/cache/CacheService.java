@@ -2,16 +2,21 @@ package com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service.cac
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.config.RedisEnabledCondition;
 
 import java.util.concurrent.TimeUnit;
 
 /**
  * Service for caching operations using Redis
+ * Only active when Redis is enabled
  * Provides TTL-based caching for metrics and other data
  */
 @Service
+@Conditional(RedisEnabledCondition.class)
 public class CacheService {
 
     private static final Logger logger = LoggerFactory.getLogger(CacheService.class);

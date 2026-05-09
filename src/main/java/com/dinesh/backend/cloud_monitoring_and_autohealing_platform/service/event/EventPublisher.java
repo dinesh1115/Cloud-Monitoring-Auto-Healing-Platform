@@ -3,16 +3,21 @@ package com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service.eve
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.event.SystemEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Conditional;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+
+import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.config.RedisEnabledCondition;
 
 import java.util.UUID;
 
 /**
  * Service for publishing system events to Redis pub/sub channels
+ * Only active when Redis is enabled
  * Enables event-driven communication between microservices
  */
 @Service
+@Conditional(RedisEnabledCondition.class)
 public class EventPublisher {
 
     private static final Logger logger = LoggerFactory.getLogger(EventPublisher.class);

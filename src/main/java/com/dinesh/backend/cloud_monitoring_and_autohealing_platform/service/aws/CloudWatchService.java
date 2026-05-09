@@ -131,6 +131,10 @@ public class CloudWatchService {
      * Get metric statistics from CloudWatch
      */
     public List<Datapoint> getMetricStatistics(String metricName, int hours) {
+        if (!awsEnabled || cloudWatchClient == null) {
+            return new ArrayList<>(); // Return empty list if AWS is not enabled
+        }
+
         try {
             GetMetricStatisticsRequest request = GetMetricStatisticsRequest.builder()
                     .namespace(namespace)
@@ -154,6 +158,10 @@ public class CloudWatchService {
      * List all alarms
      */
     public List<MetricAlarm> listAlarms() {
+        if (!awsEnabled || cloudWatchClient == null) {
+            return new ArrayList<>(); // Return empty list if AWS is not enabled
+        }
+
         try {
             DescribeAlarmsRequest request = DescribeAlarmsRequest.builder().build();
             DescribeAlarmsResponse response = cloudWatchClient.describeAlarms(request);
