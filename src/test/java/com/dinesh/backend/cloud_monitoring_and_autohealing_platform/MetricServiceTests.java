@@ -80,7 +80,11 @@ class MetricServiceTests {
         metric.setCpu(40.0);
         metricService.save(metric);
         
-        Thread.sleep(100); // Small delay to ensure timestamp difference
+        try {
+            Thread.sleep(100); // Small delay to ensure timestamp difference
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         
         metric.setCpu(60.0);
         Metric latest = metricService.save(metric);

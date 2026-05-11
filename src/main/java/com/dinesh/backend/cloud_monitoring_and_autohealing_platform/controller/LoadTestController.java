@@ -165,10 +165,10 @@ public class LoadTestController {
         
         Map<String, Object> summary = new HashMap<>();
         if (!allMetrics.isEmpty()) {
-            double avgCpu = allMetrics.stream().mapToInt(Metric::getCpu).average().orElse(0);
-            double avgTemp = allMetrics.stream().mapToInt(Metric::getTemperature).average().orElse(0);
-            int maxCpu = allMetrics.stream().mapToInt(Metric::getCpu).max().orElse(0);
-            int maxTemp = allMetrics.stream().mapToInt(Metric::getTemperature).max().orElse(0);
+            double avgCpu = allMetrics.stream().mapToDouble(Metric::getCpu).average().orElse(0.0);
+            double avgTemp = allMetrics.stream().mapToDouble(Metric::getTemperature).average().orElse(0.0);
+            double maxCpu = allMetrics.stream().mapToDouble(Metric::getCpu).max().orElse(0.0);
+            double maxTemp = allMetrics.stream().mapToDouble(Metric::getTemperature).max().orElse(0.0);
 
             summary.put("total_metrics", allMetrics.size());
             summary.put("avg_cpu", String.format("%.2f", avgCpu));

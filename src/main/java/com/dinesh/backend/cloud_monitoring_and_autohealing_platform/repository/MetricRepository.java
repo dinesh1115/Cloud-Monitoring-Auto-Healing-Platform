@@ -46,5 +46,9 @@ public class MetricRepository {
         metrics.clear();
         idSequence.set(0);
     }
+
+    public void deleteById(Long id) {
+        metrics.remove(id);
+    }
 }
 

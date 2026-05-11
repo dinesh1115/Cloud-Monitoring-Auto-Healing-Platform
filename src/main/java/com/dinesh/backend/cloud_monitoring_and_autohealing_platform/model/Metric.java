@@ -5,18 +5,22 @@ import java.time.Instant;
 public class Metric {
 
     private Long id;
-    private int cpu;
-    private int temperature;
+    private double cpu;
+    private double temperature;
+    private double memoryUsage;
+    private double diskUsage;
     private Instant timestamp;
 
     public Metric() {
         this.timestamp = Instant.now();
     }
 
-    public Metric(Long id, int cpu, int temperature, Instant timestamp) {
+    public Metric(Long id, double cpu, double temperature, double memoryUsage, double diskUsage, Instant timestamp) {
         this.id = id;
         this.cpu = cpu;
         this.temperature = temperature;
+        this.memoryUsage = memoryUsage;
+        this.diskUsage = diskUsage;
         this.timestamp = timestamp != null ? timestamp : Instant.now();
     }
 
@@ -28,20 +32,36 @@ public class Metric {
         this.id = id;
     }
 
-    public int getCpu() {
+    public double getCpu() {
         return cpu;
     }
 
-    public void setCpu(int cpu) {
+    public void setCpu(double cpu) {
         this.cpu = cpu;
     }
 
-    public int getTemperature() {
+    public double getTemperature() {
         return temperature;
     }
 
-    public void setTemperature(int temperature) {
+    public void setTemperature(double temperature) {
         this.temperature = temperature;
+    }
+
+    public double getMemoryUsage() {
+        return memoryUsage;
+    }
+
+    public void setMemoryUsage(double memoryUsage) {
+        this.memoryUsage = memoryUsage;
+    }
+
+    public double getDiskUsage() {
+        return diskUsage;
+    }
+
+    public void setDiskUsage(double diskUsage) {
+        this.diskUsage = diskUsage;
     }
 
     public Instant getTimestamp() {

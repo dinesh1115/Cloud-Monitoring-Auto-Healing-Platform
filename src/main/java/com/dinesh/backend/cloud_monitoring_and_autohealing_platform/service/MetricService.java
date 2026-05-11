@@ -162,5 +162,32 @@ public class MetricService {
         }
         return order.equalsIgnoreCase("asc") ? comparator : comparator.reversed();
     }
+
+    // Additional methods for tests
+    public List<Metric> getAllMetrics() {
+        return findAll();
+    }
+
+    public Metric getMetricById(Long id) {
+        return findById(id).orElse(null);
+    }
+
+    public List<Metric> getMetricsByCpuRange(double min, double max) {
+        return metricRepository.findAll().stream()
+                .filter(metric -> metric.getCpu() >= min && metric.getCpu() <= max)
+                .toList();
+    }
+
+    public Metric getLatestMetric() {
+        return findLatest().orElse(null);
+    }
+
+    public void deleteMetric(Long id) {
+        metricRepository.deleteById(id);
+    }
+
+    public List<Metric> getSortedMetrics(String sortBy, String order) {
+        return findAllFiltered(null, null, null, null, null, 0, sortBy, order);
+    }
 }
 

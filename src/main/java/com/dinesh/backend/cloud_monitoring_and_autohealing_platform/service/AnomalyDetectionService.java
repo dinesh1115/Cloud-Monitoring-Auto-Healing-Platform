@@ -29,20 +29,20 @@ public class AnomalyDetectionService {
         AnomalyRule highCpuRule = new AnomalyRule(
                 "cpu_high",
                 AnomalyRule.MetricType.CPU,
-                AnomalyRule.Operator.GREATER_THAN,
+                AnomalyRule.Operator.GREATER_EQUAL,
                 80.0,
                 "HIGH",
-                "CPU usage exceeds 80%"
+                "CPU usage is 80% or higher"
         );
         rules.put("cpu_high", highCpuRule);
 
         AnomalyRule criticalCpuRule = new AnomalyRule(
                 "cpu_critical",
                 AnomalyRule.MetricType.CPU,
-                AnomalyRule.Operator.GREATER_THAN,
+                AnomalyRule.Operator.GREATER_EQUAL,
                 95.0,
                 "CRITICAL",
-                "CPU usage exceeds 95%"
+                "CPU usage is 95% or higher"
         );
         rules.put("cpu_critical", criticalCpuRule);
 
@@ -51,8 +51,8 @@ public class AnomalyDetectionService {
                 AnomalyRule.MetricType.TEMPERATURE,
                 AnomalyRule.Operator.GREATER_THAN,
                 85.0,
-                "HIGH",
-                "Temperature exceeds 85°C"
+                "WARNING",
+                "Temperature is 85°C or higher"
         );
         rules.put("temp_high", highTempRule);
 
@@ -62,7 +62,7 @@ public class AnomalyDetectionService {
                 AnomalyRule.Operator.GREATER_THAN,
                 95.0,
                 "CRITICAL",
-                "Temperature exceeds 95°C"
+                "Temperature is 95°C or higher"
         );
         rules.put("temp_critical", criticalTempRule);
     }
@@ -174,8 +174,8 @@ public class AnomalyDetectionService {
         int end = Math.min(metrics.size(), MOVING_AVERAGE_WINDOW);
         return metrics.subList(metrics.size() - end, metrics.size())
                 .stream()
-                .mapToInt(Metric::getCpu)
+                .mapToDouble(Metric::getCpu)
                 .average()
-                .orElse(0);
+                .orElse(0.0);
     }
 }

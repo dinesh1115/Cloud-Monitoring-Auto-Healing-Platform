@@ -2,7 +2,7 @@ package com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service;
 
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.model.Metric;
 import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.model.Anomaly;
-import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service.anomaly.AnomalyDetectionService;
+import com.dinesh.backend.cloud_monitoring_and_autohealing_platform.service.AnomalyDetectionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.DisplayName;
@@ -97,7 +97,7 @@ class AnomalyDetectionServiceTests {
         
         assertFalse(anomalies.isEmpty());
         Anomaly anomaly = anomalies.get(0);
-        assertNotNull(anomaly.getId(), "Anomaly should have ID");
+        assertNotNull(anomaly.getAnomalyId(), "Anomaly should have ID");
         assertNotNull(anomaly.getDetectedAt(), "Anomaly should have detection timestamp");
         assertNotNull(anomaly.getSeverity(), "Anomaly should have severity");
     }
