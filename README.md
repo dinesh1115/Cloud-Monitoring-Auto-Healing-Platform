@@ -510,9 +510,6 @@ We welcome contributions from the community! Here's how to get involved:
 - Performance tests for scalability validation
 - Security tests for vulnerability assessment
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## 📞 Contact
 
